@@ -3,6 +3,8 @@ status: true
 dependencies:
   config:
     - node.type.agenda
+_core:
+  default_config_hash: ZAw09Ect2X43YpjeXvx09M5vzsnFmZFl1iE8B0EfiC4
 id: node.agenda.status
 field_name: status
 entity_type: node

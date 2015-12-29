@@ -3,6 +3,8 @@ status: true
 dependencies:
   config:
     - node.type.agenda
+_core:
+  default_config_hash: o2C8e0q4MA43T2BpxautA8ypmTuZRN9xTYjHMuMVLuk
 id: node.agenda.promote
 field_name: promote
 entity_type: node

@@ -10,6 +10,8 @@ dependencies:
   module:
     - text
     - user
+_core:
+  default_config_hash: FwPjPpjLRlNX22bkXOizl-qv7RLj1fGN-RoYCv6TKS0
 id: node.agenda.email_html
 targetEntityType: node
 bundle: agenda

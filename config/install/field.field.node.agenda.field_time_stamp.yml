@@ -4,6 +4,8 @@ dependencies:
   config:
     - field.storage.node.field_time_stamp
     - node.type.agenda
+_core:
+  default_config_hash: Ovs5dGCqxdSoZHBw6t_8O164myZBN-o0GVpQkVyIqRM
 id: node.agenda.field_time_stamp
 field_name: field_time_stamp
 entity_type: node

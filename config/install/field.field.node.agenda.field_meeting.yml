@@ -5,6 +5,8 @@ dependencies:
     - field.storage.node.field_meeting
     - node.type.agenda
     - node.type.meeting
+_core:
+  default_config_hash: VHcEEYmblBbNffLkpGwPMh5ReepdJjPugMxdtCH5_wg
 id: node.agenda.field_meeting
 field_name: field_meeting
 entity_type: node

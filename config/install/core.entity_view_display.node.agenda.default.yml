@@ -9,6 +9,8 @@ dependencies:
   module:
     - text
     - user
+_core:
+  default_config_hash: '-P-gphPzpHKpatFEjzS5qvbULqJ9I7ukmbl7fKj5pf4'
 id: node.agenda.default
 targetEntityType: node
 bundle: agenda

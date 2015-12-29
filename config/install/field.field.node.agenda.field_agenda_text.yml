@@ -6,6 +6,8 @@ dependencies:
     - node.type.agenda
   module:
     - text
+_core:
+  default_config_hash: gXSWS51nC4YDbw5KZ5-O1Zkd4gcpQgQqPwC4thr6fto
 id: node.agenda.field_agenda_text
 field_name: field_agenda_text
 entity_type: node
