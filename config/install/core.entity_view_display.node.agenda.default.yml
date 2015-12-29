@@ -1,0 +1,29 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.agenda.field_agenda_text
+    - field.field.node.agenda.field_meeting
+    - field.field.node.agenda.field_time_stamp
+    - node.type.agenda
+  module:
+    - text
+    - user
+id: node.agenda.default
+targetEntityType: node
+bundle: agenda
+mode: default
+content:
+  field_agenda_text:
+    weight: 0
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: text_default
+  links:
+    weight: 1
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  field_meeting: true
+  field_time_stamp: true

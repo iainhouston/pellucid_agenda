@@ -1,0 +1,31 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.agenda.field_agenda_text
+    - field.field.node.agenda.field_meeting
+    - field.field.node.agenda.field_time_stamp
+    - node.type.agenda
+  module:
+    - text
+    - user
+id: node.agenda.teaser
+targetEntityType: node
+bundle: agenda
+mode: teaser
+content:
+  field_agenda_text:
+    type: text_trimmed
+    weight: 0
+    label: above
+    settings:
+      trim_length: 600
+    third_party_settings: {  }
+  links:
+    weight: 1
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  field_meeting: true
+  field_time_stamp: true

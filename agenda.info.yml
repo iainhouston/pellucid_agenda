@@ -1,0 +1,14 @@
+name: Agenda
+description: 'Provide Agenda content type and related configuration. An Agenda for a particular Meeting that already exists on the website.'
+type: module
+core: 8.x
+dependencies:
+  - agenda
+  - meeting
+  - menu_ui
+  - node
+  - path
+  - simplenews
+  - text
+  - user
+features: true

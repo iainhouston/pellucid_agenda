@@ -1,0 +1,27 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.email_html
+    - field.field.node.agenda.field_agenda_text
+    - field.field.node.agenda.field_meeting
+    - field.field.node.agenda.field_time_stamp
+    - node.type.agenda
+  module:
+    - text
+    - user
+id: node.agenda.email_html
+targetEntityType: node
+bundle: agenda
+mode: email_html
+content:
+  field_agenda_text:
+    weight: 0
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: text_default
+hidden:
+  field_meeting: true
+  field_time_stamp: true
+  links: true

@@ -1,0 +1,23 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_agenda_text
+    - node.type.agenda
+  module:
+    - text
+id: node.agenda.field_agenda_text
+field_name: field_agenda_text
+entity_type: node
+bundle: agenda
+label: 'Agenda text'
+description: 'The text of the most recent Agenda will be used'
+required: true
+translatable: false
+default_value:
+  -
+    value: "<ol>\r\n\t<li>Apologies for Absence</li>\r\n\t<li>Minutes of the previous Meeting</li>\r\n\t<li>Declaration of Interests</li>\r\n\t<li>Report from the Planning Committee</li>\r\n\t<li>Matters Arising / Actions Taken</li>\r\n\t<li>County Councillor, District Councillor and Officer Reports</li>\r\n\t<li>Highways</li>\r\n\t<li>Report from Playing Field Committee</li>\r\n\t<li>Grants &amp; Donations</li>\r\n\t<li>Financial Accounts to include accounts for payment</li>\r\n\t<li>Correspondences</li>\r\n\t<li>Any Other Information and Items for next Agenda</li>\r\n\t<li>Date of Next Meeting</li>\r\n</ol>\r\n"
+    format: basic_html
+default_value_callback: ''
+settings: {  }
+field_type: text_long
