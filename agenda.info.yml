@@ -1,9 +1,11 @@
 name: Agenda
-description: 'Provide Agenda content type and related configuration. An Agenda for a particular Meeting that already exists on the website.'
+description: 'Provide Agenda content type and related configuration. An <em> Agenda</em> relates to one particular <em>Meeting</em>'
 type: module
 core: 8.x
 dependencies:
   - agenda
+  - datetime
+  - file
   - meeting
   - menu_ui
   - node

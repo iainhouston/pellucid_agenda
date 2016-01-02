@@ -3,31 +3,31 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.node.teaser
-    - field.field.node.agenda.field_agenda_text
-    - field.field.node.agenda.field_meeting
-    - field.field.node.agenda.field_time_stamp
+    - field.field.node.agenda.body
+    - field.field.node.agenda.field_agenda_meeting
+    - field.field.node.agenda.field_agenda_time_stamp
     - node.type.agenda
   module:
-    - text
     - user
 _core:
-  default_config_hash: 9YYShpyp5fH4gJ5CdzPbAjDAQKo3RwmDMuCIvtIb0qw
+  default_config_hash: 4MPuMnW19k7ea4hXo8xRb1ygxTdpZ_uje5cifh_TiIo
 id: node.agenda.teaser
 targetEntityType: node
 bundle: agenda
 mode: teaser
 content:
-  field_agenda_text:
-    type: text_trimmed
+  field_agenda_meeting:
+    type: entity_reference_entity_view
     weight: 0
     label: above
     settings:
-      trim_length: 600
+      view_mode: default
+      link: false
     third_party_settings: {  }
   links:
     weight: 1
     settings: {  }
     third_party_settings: {  }
 hidden:
-  field_meeting: true
-  field_time_stamp: true
+  body: true
+  field_agenda_time_stamp: true

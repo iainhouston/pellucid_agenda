@@ -2,17 +2,17 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.field_meeting
+    - field.storage.node.field_agenda_meeting
     - node.type.agenda
     - node.type.meeting
 _core:
-  default_config_hash: VHcEEYmblBbNffLkpGwPMh5ReepdJjPugMxdtCH5_wg
-id: node.agenda.field_meeting
-field_name: field_meeting
+  default_config_hash: VFcx4Mr5KqvkXQs_NhBZzpauLLv22A1tLR8AhVbSwtQ
+id: node.agenda.field_agenda_meeting
+field_name: field_agenda_meeting
 entity_type: node
 bundle: agenda
 label: Meeting
-description: 'Use the autocomplete text box to find a Meeting that already exists on the wbsite'
+description: ''
 required: true
 translatable: false
 default_value: {  }

@@ -2,34 +2,56 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.field.node.agenda.body
-    - field.field.node.agenda.field_agenda_meeting
-    - field.field.node.agenda.field_agenda_time_stamp
-    - node.type.agenda
+    - field.field.node.meeting.body
+    - field.field.node.meeting.field_agenda
+    - field.field.node.meeting.field_meeting_date
+    - field.field.node.meeting.field_meeting_place
+    - field.field.node.meeting.field_meeting_type
+    - field.field.node.meeting.field_supporting_documents
+    - node.type.meeting
   module:
+    - datetime
     - path
     - text
 _core:
-  default_config_hash: qFWB6XrN4XFGfDBTUBiL2A3eRyPisnEZ3N3g_hpY83E
-id: node.agenda.default
+  default_config_hash: SRL-tieCOzUZBHlxUcOUjjyEEncDEnMzkHtLHz6beyw
+id: node.meeting.default
 targetEntityType: node
-bundle: agenda
+bundle: meeting
 mode: default
 content:
   body:
     type: text_textarea_with_summary
-    weight: 2
+    weight: 5
     settings:
       rows: 9
-      summary_rows: 3
       placeholder: ''
+      summary_rows: 3
     third_party_settings: {  }
   created:
     type: datetime_timestamp
-    weight: 5
+    weight: 8
     settings: {  }
     third_party_settings: {  }
-  field_agenda_meeting:
+  field_agenda:
+    weight: 3
+    settings:
+      match_operator: CONTAINS
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: entity_reference_autocomplete
+  field_meeting_date:
+    weight: 0
+    settings: {  }
+    third_party_settings: {  }
+    type: datetime_default
+  field_meeting_place:
+    type: options_select
+    weight: 2
+    settings: {  }
+    third_party_settings: {  }
+  field_meeting_type:
     weight: 1
     settings:
       match_operator: CONTAINS
@@ -37,39 +59,41 @@ content:
       placeholder: ''
     third_party_settings: {  }
     type: entity_reference_autocomplete
-  field_agenda_time_stamp:
-    weight: 3
+  field_supporting_documents:
+    weight: 4
     settings:
+      match_operator: CONTAINS
+      size: 60
       placeholder: ''
     third_party_settings: {  }
-    type: number
+    type: entity_reference_autocomplete
   path:
     type: path
-    weight: 8
+    weight: 11
     settings: {  }
     third_party_settings: {  }
   promote:
     type: boolean_checkbox
     settings:
       display_label: true
-    weight: 6
+    weight: 9
     third_party_settings: {  }
   sticky:
     type: boolean_checkbox
     settings:
       display_label: true
-    weight: 7
+    weight: 10
     third_party_settings: {  }
   title:
     type: string_textfield
-    weight: 0
+    weight: 6
     settings:
       size: 60
       placeholder: ''
     third_party_settings: {  }
   uid:
     type: entity_reference_autocomplete
-    weight: 4
+    weight: 7
     settings:
       match_operator: CONTAINS
       size: 60

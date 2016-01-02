@@ -3,15 +3,13 @@ status: true
 dependencies:
   module:
     - node
-    - text
-_core:
-  default_config_hash: dF2lQWys7paiKoojgF2jhxVjaRpuWEKjHINRU_XVqf0
-id: node.field_agenda_text
-field_name: field_agenda_text
+id: node.field_agenda_meeting
+field_name: field_agenda_meeting
 entity_type: node
-type: text_long
-settings: {  }
-module: text
+type: entity_reference
+settings:
+  target_type: node
+module: core
 locked: false
 cardinality: 1
 translatable: true

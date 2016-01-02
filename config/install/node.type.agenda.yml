@@ -5,13 +5,14 @@ dependencies:
     - menu_ui
 third_party_settings:
   menu_ui:
-    available_menus: {  }
-    parent: ''
+    available_menus:
+      - main
+    parent: 'main:'
 _core:
-  default_config_hash: VkF4ME44xGZ8_L02zmmb0VX86hS3lqE8YeCHI1mGFVM
+  default_config_hash: Dmyla-b4zTsg3VYeGBOGRj5gSPo8O06GzvXRrYjP_AQ
 name: Agenda
 type: agenda
-description: 'An Agenda for a particular Meeting that already exists on the website.'
+description: 'An <em> Agenda</em> relates to one particular <em>Meeting</em>'
 help: ''
 new_revision: false
 preview_mode: 1

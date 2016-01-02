@@ -3,57 +3,46 @@
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\NodeInterface;
 
-/**
- * Implements HOOK_form_BASE_FORM_ID_alter
- * for Agenda Node forms
- * @param $form
- * @param \Drupal\Core\Form\FormStateInterface $form_state
- * @param $form_id
- */
-function agenda_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-
+function agenda_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   switch ($form_id) {
     case "node_agenda_form":
       // We'll supply a default agenda on a Agenda creation form
-      $form['field_agenda_text']['#access'] = FALSE;
+      $form['body']['#access'] = FALSE;
     case "node_agenda_edit_form":
       _setup_agenda_entity_builder($form);
+      break;
+    case "node_agenda_delete_form":
+      _setup_agenda_entity_delete_callback($form);
       break;
   }
 }
 
 function _setup_agenda_entity_builder(&$form) {
-  // these fields are hidden from the user
   $form['title']['#access'] = FALSE;
-  $form['field_time_stamp']['#access'] = FALSE;
-
-  // set up the callback
-  $form['#entity_builders'][] = 'agenda_node_builder';
+  $form['field_agenda_time_stamp']['#access'] = FALSE;
+  $form['#entity_builders'][] = '_agenda_node_builder';
 }
 
-/**
- * entity_builder for new and changed Agenda Nodes
- * @param $entity_type
- * @param NodeInterface $node
- * @param $form
- * @param FormStateInterface $form_state
- */
-function agenda_node_builder($entity_type, NodeInterface $node, &$form, FormStateInterface $form_state) {
-  // Find the meeting date from the Meeting Node referenced by `field_meeting`
-  if ($node->field_meeting->target_id) {
+function _setup_agenda_entity_delete_callback(&$form) {
+  $form['#validate'][] = '_agenda_delete_validation';
+}
+
+function _agenda_node_builder($entity_type, NodeInterface $node, &$form, FormStateInterface $form_state) {
+  // Find the meeting date from the Meeting Node referenced by `field_agenda_meeting`
+  if ($node->field_agenda_meeting->target_id) {
     $referenced_meeting_node = \Drupal::entityTypeManager()
       ->getStorage('node')
-      ->load($node->field_meeting->target_id);
+      ->load($node->field_agenda_meeting->target_id);
     $date_of_meeting = $referenced_meeting_node->field_meeting_date->date;
     $this_meeting_time_stamp = $date_of_meeting->format('U');
     $title_of_meeting = 'Agenda for ' . $referenced_meeting_node->getTitle();
     $node->setTitle($title_of_meeting);
   } else {
     $this_meeting_time_stamp = '0';
-    $form_state->setErrorByName('field_meeting', 'Please choose a Meeting that already exists.');
+    $form_state->setErrorByName('field_agenda_meeting', 'Please choose a Meeting that already exists.');
     $node->setTitle('Error');
   }
-  $node->set('field_time_stamp', $this_meeting_time_stamp);
+  $node->set('field_agenda_time_stamp', $this_meeting_time_stamp);
 
   $use_recent_agenda = $form_state->getValue(array('field_use_recent_agenda','value'));
   //    If it's a create form rather than an edit form
@@ -63,8 +52,8 @@ function agenda_node_builder($entity_type, NodeInterface $node, &$form, FormStat
     and $use_recent_agenda
   ) {
     $query = \Drupal::entityQuery('node')
-      ->condition('type', 'agenda')
-      ->condition('field_time_stamp', $this_meeting_time_stamp, '<');
+      ->condition('type', 'contest')
+      ->condition('field_agenda_time_stamp', $this_meeting_time_stamp, '<');
     // candidate Node ids
     $nids = $query->execute();
     if (count($nids) == 0 ) {
@@ -79,7 +68,7 @@ function agenda_node_builder($entity_type, NodeInterface $node, &$form, FormStat
       foreach ($nids as $nid) {
         // find the query'd Agenda node
         $other_agenda_node = $other_agenda_node_storage->load($nid);
-        $other_timestamp = $other_agenda_node->field_time_stamp->value;
+        $other_timestamp = $other_agenda_node->field_agenda_time_stamp->value;
         if ($nearest_date < $other_timestamp) {
           $nearest_date = $other_timestamp;
           $nearest_nid = $nid;
@@ -88,10 +77,25 @@ function agenda_node_builder($entity_type, NodeInterface $node, &$form, FormStat
 
       $other_agenda_node = \Drupal::entityTypeManager()
         ->getStorage('node')->load($nearest_nid);
-      // overwrite default agenda text with text from most recent Contest
-      $other_agenda = $other_agenda_node->field_agenda_text->value;
-      $node->set('field_agenda_text', $other_agenda);
+      // overwrite default agenda text with text from most recent Agenda
+      $other_agenda = $other_agenda_node->body->value;
+      $node->set('body', $other_agenda);
     }
     // It's not a create form
   }
 } // end of agenda_node_builder
+
+function _agenda_delete_validation(&$form, FormStateInterface $form_state) {
+  $agenda_node = $form_state->getFormObject()->getEntity();
+  $agenda_name = $agenda_node->getTitle();
+  $agenda_node_id = $agenda_node->id();
+  $query = \Drupal::entityQuery('node')
+    ->condition('type', 'meeting')
+    ->condition('field_agenda', $agenda_node_id);
+  $nids = $query->execute();
+  $count_nids = count($nids);
+  if ($count_nids > 0) {
+    $msg_stem = ($count_nids == 1) ? 'There is one Meeting that references "' : 'There are '.$count_nids.' Meetings that reference "';
+    $form_state->setError($form, $msg_stem.$agenda_name.'". It cannot be deleted yet.' );
+  }
+}

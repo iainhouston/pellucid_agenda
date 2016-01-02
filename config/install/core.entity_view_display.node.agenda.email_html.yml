@@ -3,27 +3,27 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.node.email_html
-    - field.field.node.agenda.field_agenda_text
-    - field.field.node.agenda.field_meeting
-    - field.field.node.agenda.field_time_stamp
+    - field.field.node.agenda.body
+    - field.field.node.agenda.field_agenda_meeting
+    - field.field.node.agenda.field_agenda_time_stamp
     - node.type.agenda
   module:
     - text
     - user
 _core:
-  default_config_hash: FwPjPpjLRlNX22bkXOizl-qv7RLj1fGN-RoYCv6TKS0
+  default_config_hash: kVYqjJnI25gP3drZBQy-QfA-pe_2QM2Fp2lQvDcbSpU
 id: node.agenda.email_html
 targetEntityType: node
 bundle: agenda
 mode: email_html
 content:
-  field_agenda_text:
-    weight: 0
+  body:
     label: hidden
+    type: text_default
+    weight: 0
     settings: {  }
     third_party_settings: {  }
-    type: text_default
 hidden:
-  field_meeting: true
-  field_time_stamp: true
+  field_agenda_meeting: true
+  field_agenda_time_stamp: true
   links: true
