@@ -12,7 +12,7 @@ _core:
   default_config_hash: Dmyla-b4zTsg3VYeGBOGRj5gSPo8O06GzvXRrYjP_AQ
 name: Agenda
 type: agenda
-description: 'An <em> Agenda</em> relates to one particular <em>Meeting</em>'
+description: 'An <em> Agenda</em> relating to one particular <em>Meeting</em>'
 help: ''
 new_revision: false
 preview_mode: 1

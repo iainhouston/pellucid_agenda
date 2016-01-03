@@ -5,6 +5,7 @@ dependencies:
     - field.field.node.meeting.body
     - field.field.node.meeting.field_agenda
     - field.field.node.meeting.field_meeting_date
+    - field.field.node.meeting.field_meeting_minutes
     - field.field.node.meeting.field_meeting_place
     - field.field.node.meeting.field_meeting_type
     - field.field.node.meeting.field_supporting_documents
@@ -22,7 +23,7 @@ mode: default
 content:
   body:
     type: text_textarea_with_summary
-    weight: 5
+    weight: 6
     settings:
       rows: 9
       placeholder: ''
@@ -30,7 +31,7 @@ content:
     third_party_settings: {  }
   created:
     type: datetime_timestamp
-    weight: 8
+    weight: 9
     settings: {  }
     third_party_settings: {  }
   field_agenda:
@@ -46,6 +47,14 @@ content:
     settings: {  }
     third_party_settings: {  }
     type: datetime_default
+  field_meeting_minutes:
+    weight: 4
+    settings:
+      match_operator: CONTAINS
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: entity_reference_autocomplete
   field_meeting_place:
     type: options_select
     weight: 2
@@ -60,7 +69,7 @@ content:
     third_party_settings: {  }
     type: entity_reference_autocomplete
   field_supporting_documents:
-    weight: 4
+    weight: 5
     settings:
       match_operator: CONTAINS
       size: 60
@@ -69,31 +78,31 @@ content:
     type: entity_reference_autocomplete
   path:
     type: path
-    weight: 11
+    weight: 12
     settings: {  }
     third_party_settings: {  }
   promote:
     type: boolean_checkbox
     settings:
       display_label: true
-    weight: 9
+    weight: 10
     third_party_settings: {  }
   sticky:
     type: boolean_checkbox
     settings:
       display_label: true
-    weight: 10
+    weight: 11
     third_party_settings: {  }
   title:
     type: string_textfield
-    weight: 6
+    weight: 7
     settings:
       size: 60
       placeholder: ''
     third_party_settings: {  }
   uid:
     type: entity_reference_autocomplete
-    weight: 7
+    weight: 8
     settings:
       match_operator: CONTAINS
       size: 60
