@@ -6,9 +6,12 @@ use Drupal\node\NodeInterface;
 function agenda_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   switch ($form_id) {
     case "node_agenda_form":
-      // We'll supply a default agenda on a Agenda creation form
+      // We'll supply an initial agenda text on a Agenda creation form
       $form['body']['#access'] = FALSE;
+      _setup_agenda_entity_builder($form);
     case "node_agenda_edit_form":
+      // We won't allow the Meeting to be changed once it's established
+      $form['field_agenda_meeting'] = FALSE;
       _setup_agenda_entity_builder($form);
       break;
     case "node_agenda_delete_form":
@@ -18,8 +21,11 @@ function agenda_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 }
 
 function _setup_agenda_entity_builder(&$form) {
+  // We'll supply the Agenda title based on the Meeting it's for
   $form['title']['#access'] = FALSE;
+  // The timestamp it entirely our affair and never shown to the user
   $form['field_agenda_time_stamp']['#access'] = FALSE;
+  // Now set up the callback
   $form['#entity_builders'][] = '_agenda_node_builder';
 }
 
@@ -37,26 +43,25 @@ function _agenda_node_builder($entity_type, NodeInterface $node, &$form, FormSta
     $this_meeting_time_stamp = $date_of_meeting->format('U');
     $title_of_meeting = 'Agenda for ' . $referenced_meeting_node->getTitle();
     $node->setTitle($title_of_meeting);
-  } else {
+  }
+  else {
     $this_meeting_time_stamp = '0';
     $form_state->setErrorByName('field_agenda_meeting', 'Please choose a Meeting that already exists.');
     $node->setTitle('Error');
   }
   $node->set('field_agenda_time_stamp', $this_meeting_time_stamp);
 
-  $use_recent_agenda = $form_state->getValue(array('field_use_recent_agenda','value'));
   //    If it's a create form rather than an edit form
   //    find the most recent agenda: we'll clone its agenda text
   if ($form['#form_id'] == 'node_agenda_form'
     and $this_meeting_time_stamp != '0'
-    and $use_recent_agenda
   ) {
     $query = \Drupal::entityQuery('node')
-      ->condition('type', 'contest')
+      ->condition('type', 'agenda')
       ->condition('field_agenda_time_stamp', $this_meeting_time_stamp, '<');
     // candidate Node ids
     $nids = $query->execute();
-    if (count($nids) == 0 ) {
+    if (count($nids) == 0) {
       // There are no recent Agendas; we'll leave the default agenda text as it is
       return;
     }
@@ -95,7 +100,7 @@ function _agenda_delete_validation(&$form, FormStateInterface $form_state) {
   $nids = $query->execute();
   $count_nids = count($nids);
   if ($count_nids > 0) {
-    $msg_stem = ($count_nids == 1) ? 'There is one Meeting that references "' : 'There are '.$count_nids.' Meetings that reference "';
-    $form_state->setError($form, $msg_stem.$agenda_name.'". It cannot be deleted yet.' );
+    $msg_stem = ($count_nids == 1) ? 'There is one Meeting that references "' : 'There are ' . $count_nids . ' Meetings that reference "';
+    $form_state->setError($form, $msg_stem . $agenda_name . '". It cannot be deleted yet.');
   }
 }
