@@ -12,7 +12,7 @@ field_name: field_agenda_meeting
 entity_type: node
 bundle: agenda
 label: Meeting
-description: ''
+description: '<p>Start typing to reveal the Meeting for which this is the Agenda<br>Then click the chosen Meeting before clicking <em>Save</em>'
 required: true
 translatable: false
 default_value: {  }

@@ -3,17 +3,32 @@
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\NodeInterface;
 
+/**
+ * Implements HOOK_form_alter() for Agenda nodes
+ * @param $form
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ * @param $form_id
+ *
+ * agenda_form_alter() deals with Agenda's create, update, and deletion forms
+ */
 function agenda_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   switch ($form_id) {
+    // Agenda creation form
     case "node_agenda_form":
-      // We'll supply an initial agenda text on a Agenda creation form
+      // We'll supply an initial agenda text on creation
       $form['body']['#access'] = FALSE;
+      // Hide the agenda status from form creation
+      $form['field_agenda_status']['#access'] = FALSE;
       _setup_agenda_entity_builder($form);
+      break;
+    // Agenda edit form
     case "node_agenda_edit_form":
       // We won't allow the Meeting to be changed once it's established
       $form['field_agenda_meeting'] = FALSE;
       _setup_agenda_entity_builder($form);
+      _setup_agenda_entity_edit_callback($form, $form_state);
       break;
+    // Agenda delete form
     case "node_agenda_delete_form":
       _setup_agenda_entity_delete_callback($form);
       break;
@@ -29,10 +44,38 @@ function _setup_agenda_entity_builder(&$form) {
   $form['#entity_builders'][] = '_agenda_node_builder';
 }
 
+function _setup_agenda_entity_edit_callback(&$form, FormStateInterface $form_state) {
+  $form['#validate'][] = '_agenda_edit_validation';
+  // Hide the Agenda text field unless in Draft Status
+  $agenda_node = $form_state->getFormObject()->getEntity();
+  $agenda_status_id = $agenda_node->field_agenda_status->target_id;
+  $referenced_tag = \Drupal::entityTypeManager()
+    ->getStorage('taxonomy_term')
+    ->load($agenda_status_id);
+  $agenda_status = $referenced_tag->name->value;
+  if ($agenda_status != 'Draft') {
+    // We'll prevent agenda text edits unless in Draft status
+    $form['body']['#access'] = FALSE;
+  }
+}
+
 function _setup_agenda_entity_delete_callback(&$form) {
   $form['#validate'][] = '_agenda_delete_validation';
 }
 
+/**
+ * _agenda_node_builder is Agenda's entity_builder callback
+ * It is used to populate / update the Agenda node being created or edited
+ * prior to it being saved consequent upon form submission
+ * It does:
+ * - sets up the Agenda title on behalf of the user
+ * - records a timestamp for comparison and sorting purposes
+ * - sets up a draft agenda text from the most recent agenda should this exist
+ * @param $entity_type
+ * @param \Drupal\node\NodeInterface $node
+ * @param $form
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ */
 function _agenda_node_builder($entity_type, NodeInterface $node, &$form, FormStateInterface $form_state) {
   // Find the meeting date from the Meeting Node referenced by `field_agenda_meeting`
   if ($node->field_agenda_meeting->target_id) {
@@ -90,6 +133,30 @@ function _agenda_node_builder($entity_type, NodeInterface $node, &$form, FormSta
   }
 } // end of agenda_node_builder
 
+/**
+ * _agenda_edit_validation() prevents the Agenda from being edited when its final
+ * @param $form
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ */
+function _agenda_edit_validation(&$form, FormStateInterface $form_state) {
+  $agenda_status_id = $form_state->getValue(array('field_agenda_status','0','target_id'));
+  $referenced_tag = \Drupal::entityTypeManager()
+    ->getStorage('taxonomy_term')
+    ->load($agenda_status_id);
+  $agenda_status = $referenced_tag->name->value;
+  if ($agenda_status != 'Draft') {
+  // The only field exposed when not in Draft status is the Status itself
+  // So this code should never be executed!
+    $form_state->setErrorByName('field_agenda_status', 'Please change the Agenda to "Draft" status and make a note in the "Revision log message" box before submitting your changes');
+  }
+}
+
+/**
+ * _agenda_delete_validation is the Agenda's delete validator callback
+ * @param $form
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ * It will prevent an Agenda from being deleted when a Meeting references it
+ */
 function _agenda_delete_validation(&$form, FormStateInterface $form_state) {
   $agenda_node = $form_state->getFormObject()->getEntity();
   $agenda_name = $agenda_node->getTitle();

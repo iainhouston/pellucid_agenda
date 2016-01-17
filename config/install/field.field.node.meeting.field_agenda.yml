@@ -21,5 +21,6 @@ settings:
     target_bundles:
       agenda: agenda
     sort:
-      field: _none
+      field: field_agenda_time_stamp
+      direction: ASC
 field_type: entity_reference

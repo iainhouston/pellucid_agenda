@@ -5,12 +5,15 @@ core: 8.x
 dependencies:
   - agenda
   - datetime
+  - diff
   - file
   - meeting
   - menu_ui
+  - minutes
   - node
   - path
   - simplenews
+  - taxonomy
   - text
   - user
 features: true

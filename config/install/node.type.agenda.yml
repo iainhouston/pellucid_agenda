@@ -14,6 +14,6 @@ name: Agenda
 type: agenda
 description: 'An <em> Agenda</em> relating to one particular <em>Meeting</em>'
 help: ''
-new_revision: false
+new_revision: true
 preview_mode: 1
 display_submitted: true

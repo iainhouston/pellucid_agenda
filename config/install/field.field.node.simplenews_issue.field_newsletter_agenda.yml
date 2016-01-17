@@ -10,7 +10,7 @@ field_name: field_newsletter_agenda
 entity_type: node
 bundle: simplenews_issue
 label: Agenda
-description: 'Optional field. Help text to be added'
+description: 'Optional field. Start typing the name of an <em>Agenda</em> that exists on the website.'
 required: false
 translatable: false
 default_value: {  }

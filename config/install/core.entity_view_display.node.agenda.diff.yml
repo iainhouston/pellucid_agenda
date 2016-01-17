@@ -2,6 +2,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - core.entity_view_mode.node.diff
     - field.field.node.agenda.body
     - field.field.node.agenda.field_agenda_meeting
     - field.field.node.agenda.field_agenda_status
@@ -12,34 +13,26 @@ dependencies:
     - user
 _core:
   default_config_hash: artPYoau7WaaWbkqR2l0ANetjovjs80uH9A2eGGPCz8
-id: node.agenda.default
+id: node.agenda.diff
 targetEntityType: node
 bundle: agenda
-mode: default
+mode: diff
 content:
   body:
     label: hidden
     type: text_default
-    weight: 2
-    settings: {  }
-    third_party_settings: {  }
-  field_agenda_meeting:
-    type: entity_reference_label
     weight: 0
-    label: above
-    settings:
-      link: true
+    settings: {  }
     third_party_settings: {  }
   field_agenda_status:
+    type: entity_reference_entity_view
     weight: 1
-    label: inline
+    label: above
     settings:
-      link: true
-    third_party_settings: {  }
-    type: entity_reference_label
-  links:
-    weight: 3
-    settings: {  }
+      view_mode: default
+      link: false
     third_party_settings: {  }
 hidden:
+  field_agenda_meeting: true
   field_agenda_time_stamp: true
+  links: true

@@ -10,6 +10,7 @@ dependencies:
     - field.field.node.meeting.field_meeting_place
     - field.field.node.meeting.field_meeting_type
     - field.field.node.meeting.field_supporting_documents
+    - field.field.node.meeting.simplenews_issue
     - node.type.meeting
   module:
     - datetime
@@ -25,12 +26,12 @@ content:
   body:
     label: above
     type: text_default
-    weight: 6
+    weight: 2
     settings: {  }
     third_party_settings: {  }
   field_agenda:
     weight: 3
-    label: above
+    label: hidden
     settings:
       view_mode: email_html
       link: false
@@ -38,10 +39,10 @@ content:
     type: entity_reference_entity_view
   field_meeting_date:
     weight: 0
-    label: above
+    label: inline
     settings:
-      format_type: medium
       timezone_override: ''
+      format_type: ba_kind
     third_party_settings: {  }
     type: datetime_default
   field_meeting_minutes:
@@ -52,11 +53,12 @@ content:
       link: true
     third_party_settings: {  }
   field_meeting_place:
-    type: entity_reference_label
+    type: entity_reference_entity_view
     weight: 1
     label: hidden
     settings:
       link: true
+      view_mode: default
     third_party_settings: {  }
   field_supporting_documents:
     weight: 5
@@ -65,9 +67,7 @@ content:
       link: true
     third_party_settings: {  }
     type: entity_reference_label
-  links:
-    weight: 2
-    settings: {  }
-    third_party_settings: {  }
 hidden:
   field_meeting_type: true
+  links: true
+  simplenews_issue: true

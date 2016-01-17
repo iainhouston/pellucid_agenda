@@ -9,6 +9,7 @@ dependencies:
     - field.field.node.meeting.field_meeting_place
     - field.field.node.meeting.field_meeting_type
     - field.field.node.meeting.field_supporting_documents
+    - field.field.node.meeting.simplenews_issue
     - node.type.meeting
   module:
     - datetime
@@ -87,6 +88,11 @@ content:
       display_label: true
     weight: 10
     third_party_settings: {  }
+  simplenews_issue:
+    weight: 26
+    settings: {  }
+    third_party_settings: {  }
+    type: options_select
   sticky:
     type: boolean_checkbox
     settings:

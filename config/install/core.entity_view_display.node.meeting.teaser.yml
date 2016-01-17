@@ -10,6 +10,7 @@ dependencies:
     - field.field.node.meeting.field_meeting_place
     - field.field.node.meeting.field_meeting_type
     - field.field.node.meeting.field_supporting_documents
+    - field.field.node.meeting.simplenews_issue
     - node.type.meeting
   module:
     - user
@@ -36,3 +37,4 @@ hidden:
   field_meeting_minutes: true
   field_meeting_type: true
   field_supporting_documents: true
+  simplenews_issue: true
