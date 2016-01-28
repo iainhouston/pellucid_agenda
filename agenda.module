@@ -45,7 +45,10 @@ function _setup_agenda_entity_builder(&$form) {
 }
 
 function _setup_agenda_entity_edit_callback(&$form, FormStateInterface $form_state) {
-  $form['#validate'][] = '_agenda_edit_validation';
+
+  // An edit validation callback is not needed as the agenda text in hidden in Final Agendas
+  //$form['#validate'][] = '_agenda_edit_validation';
+
   // Hide the Agenda text field unless in Draft Status
   $agenda_node = $form_state->getFormObject()->getEntity();
   $agenda_status_id = $agenda_node->field_agenda_status->target_id;
@@ -134,24 +137,6 @@ function _agenda_node_builder($entity_type, NodeInterface $node, &$form, FormSta
 } // end of agenda_node_builder
 
 /**
- * _agenda_edit_validation() prevents the Agenda from being edited when its final
- * @param $form
- * @param \Drupal\Core\Form\FormStateInterface $form_state
- */
-function _agenda_edit_validation(&$form, FormStateInterface $form_state) {
-  $agenda_status_id = $form_state->getValue(array('field_agenda_status','0','target_id'));
-  $referenced_tag = \Drupal::entityTypeManager()
-    ->getStorage('taxonomy_term')
-    ->load($agenda_status_id);
-  $agenda_status = $referenced_tag->name->value;
-  if ($agenda_status != 'Draft') {
-  // The only field exposed when not in Draft status is the Status itself
-  // So this code should never be executed!
-    $form_state->setErrorByName('field_agenda_status', 'Please change the Agenda to "Draft" status and make a note in the "Revision log message" box before submitting your changes');
-  }
-}
-
-/**
  * _agenda_delete_validation is the Agenda's delete validator callback
  * @param $form
  * @param \Drupal\Core\Form\FormStateInterface $form_state
@@ -169,5 +154,14 @@ function _agenda_delete_validation(&$form, FormStateInterface $form_state) {
   if ($count_nids > 0) {
     $msg_stem = ($count_nids == 1) ? 'There is one Meeting that references "' : 'There are ' . $count_nids . ' Meetings that reference "';
     $form_state->setError($form, $msg_stem . $agenda_name . '". It cannot be deleted yet.');
+  }
+  $agenda_status_id = $agenda_node->field_agenda_status->target_id;
+  $referenced_tag = \Drupal::entityTypeManager()
+    ->getStorage('taxonomy_term')
+    ->load($agenda_status_id);
+  $agenda_status = $referenced_tag->name->value;
+  if ($agenda_status != 'Draft') {
+    // We'll prevent agenda text edits unless in Draft status
+    $form_state->setError($form, 'Please change the Agenda to "Draft" status and make a note in the "Revision log message" box before attempting to delete.');
   }
 }

@@ -24,14 +24,14 @@ bundle: meeting
 mode: email_html
 content:
   body:
-    label: above
+    label: inline
     type: text_default
     weight: 2
     settings: {  }
     third_party_settings: {  }
   field_agenda:
     weight: 3
-    label: hidden
+    label: inline
     settings:
       view_mode: email_html
       link: false
@@ -55,7 +55,7 @@ content:
   field_meeting_place:
     type: entity_reference_entity_view
     weight: 1
-    label: hidden
+    label: inline
     settings:
       link: true
       view_mode: default
