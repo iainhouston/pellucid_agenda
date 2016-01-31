@@ -1,12 +1,13 @@
 name: Agenda
-description: 'Provide Agenda content type and related configuration. An <em> Agenda</em> relates to one particular <em>Meeting</em>'
+description: 'Provide Agenda content type and related configuration. An <em> Agenda</em> relating to one particular <em>Meeting</em>'
 type: module
 core: 8.x
 dependencies:
   - agenda
   - datetime
   - diff
-  - file
+  - document
+  - field
   - meeting
   - menu_ui
   - minutes
@@ -16,4 +17,3 @@ dependencies:
   - taxonomy
   - text
   - user
-features: true
