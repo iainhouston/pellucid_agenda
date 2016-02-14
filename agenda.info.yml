@@ -3,18 +3,16 @@ description: 'Provide Agenda content type and related configuration. An <em> Age
 type: module
 core: 8.x
 dependencies:
-  - agenda
   - datetime
   - diff
   - field
   - file
-  - meeting
+#  - meeting
   - menu_ui
-  - minutes
+#  - minutes
   - node
   - path
   - simplenews
   - taxonomy
   - text
   - user
-features: true
