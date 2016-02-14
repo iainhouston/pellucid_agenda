@@ -1,7 +1,7 @@
 {
   "name": "iainhouston/pellucid_agenda",
   "description": "Provide Agenda content type and related configuration. An <em> Agenda</em> relates to one particular <em>Meeting</em>",
-  "type": "pellucid-module",
+  "type": "drupal-module",
   "license": "GPL-2.0+",
   "keywords": ["pellucid", "php"],
   "homepage": "https://iainhouston.com",
