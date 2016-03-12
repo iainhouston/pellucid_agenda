@@ -162,6 +162,6 @@ function _agenda_delete_validation(&$form, FormStateInterface $form_state) {
   $agenda_status = $referenced_tag->name->value;
   if ($agenda_status != 'Draft') {
     // We'll prevent agenda text edits unless in Draft status
-    $form_state->setError($form, 'Please change the Agenda to "Draft" status and make a note in the "Revision log message" box before attempting to delete.');
+    $form_state->setError($form, 'Please change the Agenda to "Draft" status before attempting to delete.');
   }
 }
