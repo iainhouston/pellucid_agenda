@@ -2,6 +2,7 @@ name: Agenda
 description: 'Provide Agenda content type and related configuration. An <em> Agenda</em> relates to one particular <em>Meeting</em>'
 type: module
 core: 8.x
+core_version_requirement: ^8 || ^9
 dependencies:
   - datetime
   - diff
