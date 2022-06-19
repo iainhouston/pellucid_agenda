@@ -15,8 +15,6 @@ function agenda_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   switch ($form_id) {
     // Agenda creation form
     case "node_agenda_form":
-      // We'll supply an initial agenda text on creation
-      $form['body']['#access'] = FALSE;
       // Hide the agenda status from form creation
       $form['field_agenda_status']['#access'] = FALSE;
       _setup_agenda_entity_builder($form);
@@ -73,7 +71,6 @@ function _setup_agenda_entity_delete_callback(&$form) {
  * It does:
  * - sets up the Agenda title on behalf of the user
  * - records a timestamp for comparison and sorting purposes
- * - sets up a draft agenda text from the most recent agenda should this exist
  * @param $entity_type
  * @param \Drupal\node\NodeInterface $node
  * @param $form
@@ -95,45 +92,7 @@ function _agenda_node_builder($entity_type, NodeInterface $node, &$form, FormSta
     $form_state->setErrorByName('field_agenda_meeting', 'Please choose a Meeting that already exists.');
     $node->setTitle('Error');
   }
-  $node->set('field_agenda_time_stamp', $this_meeting_time_stamp);
-
-  //    If it's a create form rather than an edit form
-  //    find the most recent agenda: we'll clone its agenda text
-  if ($form['#form_id'] == 'node_agenda_form'
-    and $this_meeting_time_stamp != '0'
-  ) {
-    $query = \Drupal::entityQuery('node')
-      ->condition('type', 'agenda')
-      ->condition('field_agenda_time_stamp', $this_meeting_time_stamp, '<');
-    // candidate Node ids
-    $nids = $query->execute();
-    if (count($nids) == 0) {
-      // There are no recent Agendas; we'll leave the default agenda text as it is
-      return;
-    }
-    else {
-      $nearest_nid = '';
-      $nearest_date = 0;
-      $other_agenda_node_storage = \Drupal::entityTYpeManager()
-        ->getStorage('node');
-      foreach ($nids as $nid) {
-        // find the query'd Agenda node
-        $other_agenda_node = $other_agenda_node_storage->load($nid);
-        $other_timestamp = $other_agenda_node->field_agenda_time_stamp->value;
-        if ($nearest_date < $other_timestamp) {
-          $nearest_date = $other_timestamp;
-          $nearest_nid = $nid;
-        }
-      }
-
-      $other_agenda_node = \Drupal::entityTypeManager()
-        ->getStorage('node')->load($nearest_nid);
-      // overwrite default agenda text with text from most recent Agenda
-      $other_agenda = $other_agenda_node->body->value;
-      $node->set('body', $other_agenda);
-    }
-    // It's not a create form
-  }
+  $node->set('field_agenda_time_stamp', $this_meeting_time_stamp);  
 } // end of agenda_node_builder
 
 /**

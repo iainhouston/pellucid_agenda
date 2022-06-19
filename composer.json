@@ -1,6 +1,7 @@
 {
   "name": "iainhouston/pellucid_agenda",
   "description": "Provide Agenda content type and related configuration. An <em> Agenda</em> relates to one particular <em>Meeting</em>",
+  "version": "4.0.1",
   "type": "drupal-module", 
   "extra": {
         "installer-name": "agenda"
