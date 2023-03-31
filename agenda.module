@@ -23,7 +23,6 @@ function agenda_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     case "node_agenda_edit_form":
       // We won't allow the Meeting to be changed once it's established
       $form['field_agenda_meeting'] = FALSE;
-//      _setup_agenda_entity_builder($form);
       _setup_agenda_entity_edit_callback($form, $form_state);
       break;
     // Agenda delete form
@@ -40,19 +39,9 @@ function _setup_agenda_entity_builder(&$form) {
   $form['field_agenda_time_stamp']['#access'] = FALSE;
   // Now set up the callback
   $form['#entity_builders'][] = '_agenda_node_builder';
-//  $form['#validate'][] = '_agenda_form_validate';
 }
 
-//function _agenda_form_validate($form, $form_state) {
-//  $agenda_node = $form_state->getFormObject()->getEntity();
-//  $agenda_name = $agenda_node->getTitle();
-//  $form_title = $form_state['values']['title'];
-//}
-
 function _setup_agenda_entity_edit_callback(&$form, FormStateInterface $form_state) {
-
-  // An edit validation callback is not needed as the agenda text in hidden in Final Agendas
-  //$form['#validate'][] = '_agenda_edit_validation';
 
   // The title cannot be edited after the Agenda has been created
   $form['title']['#access'] = FALSE;
@@ -80,7 +69,7 @@ function _setup_agenda_entity_delete_callback(&$form) {
 
 /**
  * _agenda_node_builder is Agenda's entity_builder callback
- * It is used to populate / update the Agenda node being created or edited
+ * It is used to populate the Agenda node being created 
  * prior to it being saved consequent upon form submission
  * It does:
  * - sets up the Agenda title on behalf of the user
