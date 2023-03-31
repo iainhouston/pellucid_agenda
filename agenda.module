@@ -23,7 +23,7 @@ function agenda_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     case "node_agenda_edit_form":
       // We won't allow the Meeting to be changed once it's established
       $form['field_agenda_meeting'] = FALSE;
-      _setup_agenda_entity_builder($form);
+//      _setup_agenda_entity_builder($form);
       _setup_agenda_entity_edit_callback($form, $form_state);
       break;
     // Agenda delete form
@@ -53,6 +53,13 @@ function _setup_agenda_entity_edit_callback(&$form, FormStateInterface $form_sta
 
   // An edit validation callback is not needed as the agenda text in hidden in Final Agendas
   //$form['#validate'][] = '_agenda_edit_validation';
+
+  // The title cannot be edited after the Agenda has been created
+  $form['title']['#access'] = FALSE;
+  // We won't allow the Meeting to be changed once it's established
+  $form['field_agenda_meeting']['#access']  = FALSE;
+  // The timestamp it entirely our affair and never shown to the user
+  $form['field_agenda_time_stamp']['#access'] = FALSE;
 
   // Hide the Agenda text field unless in Draft Status
   $agenda_node = $form_state->getFormObject()->getEntity();
@@ -93,7 +100,7 @@ function _agenda_node_builder($entity_type, NodeInterface $node, &$form, FormSta
     $this_meeting_time_stamp = $date_of_meeting->format('U');
     $title_of_agenda = 'Agenda for ' . $referenced_meeting_node->getTitle();
     if(!unique_agenda_name($title_of_agenda)) {
-      $form_state->setError($form, $title_of_agenda . ' not created as it already exists.');
+      $form_state->setError($form, "An " . $title_of_agenda . " has not been created as one already exists. Most likely the Meeting page has not been edited to include its Agenda");
     }
     else {
       $node->setTitle($title_of_agenda);
