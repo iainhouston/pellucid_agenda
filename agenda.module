@@ -16,9 +16,16 @@ function agenda_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
     // Agenda creation form
     case "node_agenda_form":
-      // Hide the agenda status from form creation
+      // Hide the agenda status from form creation. Form is set to DRAFT default
       $form['field_agenda_status']['#access'] = FALSE;
-      _setup_agenda_entity_builder($form);
+      // We'll supply the Agenda title based on the Meeting it's for
+      $form['title']['#access'] = FALSE;
+      // The timestamp it entirely our affair and never shown to the user
+      $form['field_agenda_time_stamp']['#access'] = FALSE;
+      // Now set up the callback
+      $form['#entity_builders'][] = '_agenda_node_builder';
+      $form['#validate'][] = '_agenda_node_form_validate';
+//      $form['#submit'][] = '_agenda_node_form_submit';
       break;
 
     // Agenda edit form
@@ -44,24 +51,9 @@ function agenda_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
     // Agenda delete form
     case "node_agenda_delete_form":
-      _setup_agenda_entity_delete_callback($form);
+      $form['#validate'][] = '_agenda_delete_validation';
       break;
   }
-}
-
-function _setup_agenda_entity_builder(&$form) {
-  // We'll supply the Agenda title based on the Meeting it's for
-  $form['title']['#access'] = FALSE;
-  // The timestamp it entirely our affair and never shown to the user
-  $form['field_agenda_time_stamp']['#access'] = FALSE;
-  // Now set up the callback
-  $form['#entity_builders'][] = '_agenda_node_builder';
-  $form['#validate'][] = '_agenda_node_form_validate';
-  $form['#submit'][] = '_agenda_node_form_submit';
-}
-
-function _setup_agenda_entity_delete_callback(&$form) {
-  $form['#validate'][] = '_agenda_delete_validation';
 }
 
 /**
@@ -76,7 +68,7 @@ function _setup_agenda_entity_delete_callback(&$form) {
  * @param $form
  * @param \Drupal\Core\Form\FormStateInterface $form_state
  */
-function _agenda_node_builder($entity_type, NodeInterface $node, $form, FormStateInterface &$form_state) {
+function _agenda_node_builder($entity_type, NodeInterface $node, &$form, FormStateInterface $form_state) {
   // Find the meeting date from the Meeting Node referenced by `field_agenda_meeting`
   if ($node->field_agenda_meeting->target_id) {
     $referenced_meeting_node = \Drupal::entityTypeManager()
@@ -97,7 +89,7 @@ function _agenda_node_builder($entity_type, NodeInterface $node, $form, FormStat
 } // end of agenda_node_builder
 
 
-function _agenda_node_form_validate($form, FormStateInterface &$form_state) {
+function _agenda_node_form_validate(array &$form, FormStateInterface $form_state)  {
   $agenda_name = $form_state->getValue('title');
 
   if (!_unique_agenda_name($agenda_name)) {
@@ -115,7 +107,7 @@ function _unique_agenda_name($title_of_agenda) {
   return count($nids) === 0;
 }
 
-function _agenda_node_form_submit($form, &$form_state) {
+function _agenda_node_form_submit(array &$form, FormStateInterface $form_state) {
   drupal_set_message(t('The form has been submitted.'));
 }
 
@@ -125,7 +117,7 @@ function _agenda_node_form_submit($form, &$form_state) {
  * @param \Drupal\Core\Form\FormStateInterface $form_state
  * It will prevent an Agenda from being deleted when a Meeting references it
  */
-function _agenda_delete_validation($form, FormStateInterface &$form_state) {
+function _agenda_delete_validation(array &$form, FormStateInterface $form_state) {
   $agenda_node = $form_state->getFormObject()->getEntity();
   $agenda_name = $agenda_node->getTitle();
   $agenda_node_id = $agenda_node->id();
