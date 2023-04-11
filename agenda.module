@@ -46,7 +46,7 @@ function _prepare_agenda_edit_form(&$form, FormStateInterface $form_state) {
 
   // We won't allow the Meeting to be changed once it's established
   $form['field_agenda_meeting']['#access'] = FALSE;
-  // We'll supply the Agenda title based on the Meeting it's for
+  // We'll retain the Agenda title based on the Meeting it's for
   $form['title']['#access'] = FALSE;
   // The timestamp it entirely our affair and never shown to the user
   $form['field_agenda_time_stamp']['#access'] = FALSE;
@@ -107,7 +107,7 @@ function _agenda_node_builder($entity_type, NodeInterface $node, &$form, FormSta
     }
   }
   else {
-    // Internal error - shouldn't happen
+    // Exceptional error - shouldn't happen
     $form_state->setErrorByName('field_agenda_meeting', 'Please choose a Meeting that already exists.');
   }
 } // end of agenda_node_builder
@@ -126,7 +126,7 @@ function _agenda_delete_validation(&$form, FormStateInterface $form_state) {
     ->condition('type', 'meeting')
     ->condition('field_agenda', $agenda_node_id);
   $nids = $query->execute();
-  $count_nids = count($nids);
+  $count_nids = count($nids); // Used several times
   if ($count_nids > 0) {
     $msg_stem = ($count_nids == 1) ? 'There is one Meeting that references "' : 'There are ' . $count_nids . ' Meetings that reference "';
     $form_state->setError($form, $msg_stem . $agenda_name . '". It cannot be deleted yet until the corresponding Meeting is either edited or deleted.');
