@@ -16,8 +16,6 @@ function agenda_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
     // Agenda creation form
     case "node_agenda_form":
-      // Hide the agenda status from form creation
-      $form['field_agenda_status']['#access'] = FALSE;
       _setup_agenda_entity_builder($form);
       break;
 
@@ -34,10 +32,14 @@ function agenda_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 }
 
 function _setup_agenda_entity_builder(&$form) {
+    
   // We'll supply the Agenda title based on the Meeting it's for
   $form['title']['#access'] = FALSE;
   // The timestamp it entirely our affair and never shown to the user
   $form['field_agenda_time_stamp']['#access'] = FALSE;
+  // Hide the agenda status from form creation
+  $form['field_agenda_status']['#access'] = FALSE;
+  
   // Now set up the callback
   $form['#entity_builders'][] = '_agenda_node_builder';
 }
@@ -81,6 +83,7 @@ function _setup_agenda_entity_delete_callback(&$form) {
  * @param \Drupal\Core\Form\FormStateInterface $form_state
  */
 function _agenda_node_builder($entity_type, NodeInterface $node, &$form, FormStateInterface $form_state) {
+    
   // Find the meeting date from the Meeting Node referenced by `field_agenda_meeting`
   if ($node->field_agenda_meeting->target_id) {
 
@@ -119,10 +122,13 @@ function _agenda_node_builder($entity_type, NodeInterface $node, &$form, FormSta
  * It will prevent an Agenda from being deleted when a Meeting references it
  */
 function _agenda_delete_validation(&$form, FormStateInterface $form_state) {
+    
+  // Check whether this Agenda is currently in use by a Meeting 
   $agenda_node = $form_state->getFormObject()->getEntity();
   $agenda_name = $agenda_node->getTitle();
   $agenda_node_id = $agenda_node->id();
   $query = \Drupal::entityQuery('node')
+    ->accessCheck(TRUE)
     ->condition('type', 'meeting')
     ->condition('field_agenda', $agenda_node_id);
   $nids = $query->execute();
@@ -131,13 +137,14 @@ function _agenda_delete_validation(&$form, FormStateInterface $form_state) {
     $msg_stem = ($count_nids == 1) ? 'There is one Meeting that references "' : 'There are ' . $count_nids . ' Meetings that reference "';
     $form_state->setError($form, $msg_stem . $agenda_name . '". It cannot be deleted yet until the corresponding Meeting is either edited or deleted.');
   }
+  
+  // The Agenda should be in Draft status to be deleted
   $agenda_status_id = $agenda_node->field_agenda_status->target_id;
   $referenced_tag = \Drupal::entityTypeManager()
     ->getStorage('taxonomy_term')
     ->load($agenda_status_id);
   $agenda_status = $referenced_tag->name->value;
   if ($agenda_status != 'Draft') {
-    // We'll prevent agenda text edits unless in Draft status
     $form_state->setError($form, 'Please change the Agenda to "Draft" status before attempting to delete.');
   }
 }
