@@ -13,52 +13,62 @@ use Drupal\node\NodeInterface;
  */
 function agenda_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   switch ($form_id) {
-
     // Agenda creation form
     case "node_agenda_form":
-      // Hide the agenda status from form creation. Form is set to DRAFT default
+      // Hide the agenda status from form creation
       $form['field_agenda_status']['#access'] = FALSE;
-      // We'll supply the Agenda title based on the Meeting it's for
-      $form['title']['#access'] = FALSE;
-      // The timestamp it entirely our affair and never shown to the user
-      $form['field_agenda_time_stamp']['#access'] = FALSE;
-      // Now set up the callback
-      $form['#entity_builders'][] = '_agenda_node_builder';
-      $form['#validate'][] = '_agenda_node_form_validate';
-//      $form['#submit'][] = '_agenda_node_form_submit';
+      _setup_agenda_entity_builder($form);
       break;
-
     // Agenda edit form
     case "node_agenda_edit_form":
-      // The title cannot be edited after the Agenda has been created
-      $form['title']['#access'] = FALSE;
       // We won't allow the Meeting to be changed once it's established
-      $form['field_agenda_meeting']['#access']  = FALSE;
-      // The timestamp it entirely our affair and never shown to the user
-      $form['field_agenda_time_stamp']['#access'] = FALSE;
-      // Hide the Agenda text field unless in Draft Status
-      $agenda_node = $form_state->getFormObject()->getEntity();
-      $agenda_status_id = $agenda_node->field_agenda_status->target_id;
-      $referenced_tag = \Drupal::entityTypeManager()
-        ->getStorage('taxonomy_term')
-        ->load($agenda_status_id);
-      $agenda_status = $referenced_tag->name->value;
-      if ($agenda_status != 'Draft') {
-        // We'll prevent agenda text edits unless in Draft status
-        $form['body']['#access'] = FALSE;
-      }
+      $form['field_agenda_meeting'] = FALSE;
+//      _setup_agenda_entity_builder($form);
+      _setup_agenda_entity_edit_callback($form, $form_state);
       break;
-
     // Agenda delete form
     case "node_agenda_delete_form":
-      $form['#validate'][] = '_agenda_delete_validation';
+      _setup_agenda_entity_delete_callback($form);
       break;
   }
 }
 
+function _setup_agenda_entity_builder(&$form) {
+  // We'll supply the Agenda title based on the Meeting it's for
+  $form['title']['#access'] = FALSE;
+  // The timestamp it entirely our affair and never shown to the user
+  $form['field_agenda_time_stamp']['#access'] = FALSE;
+  // Now set up the callback
+  $form['#entity_builders'][] = '_agenda_node_builder';
+}
+
+function _setup_agenda_entity_edit_callback(&$form, FormStateInterface $form_state) {
+
+  // We'll supply the Agenda title based on the Meeting it's for
+  $form['title']['#access'] = FALSE;
+  // The timestamp it entirely our affair and never shown to the user
+  $form['field_agenda_time_stamp']['#access'] = FALSE;
+
+  // Hide the Agenda text field unless in Draft Status
+  $agenda_node = $form_state->getFormObject()->getEntity();
+  $agenda_status_id = $agenda_node->field_agenda_status->target_id;
+  $referenced_tag = \Drupal::entityTypeManager()
+    ->getStorage('taxonomy_term')
+    ->load($agenda_status_id);
+  $agenda_status = $referenced_tag->name->value;
+  if ($agenda_status != 'Draft') {
+    // We'll prevent agenda text edits unless in Draft status
+    $form['body']['#access'] = FALSE;
+  }
+}
+
+function _setup_agenda_entity_delete_callback(&$form) {
+  $form['#validate'][] = '_agenda_delete_validation';
+}
+
 /**
  * _agenda_node_builder is Agenda's entity_builder callback
- * It is used to populate the Agenda node being created
+ * It is used to populate / update the Agenda node being created or edited
  * prior to it being saved consequent upon form submission
  * It does:
  * - sets up the Agenda title on behalf of the user
@@ -78,38 +88,22 @@ function _agenda_node_builder($entity_type, NodeInterface $node, &$form, FormSta
     $this_meeting_time_stamp = $date_of_meeting->format('U');
     $title_of_agenda = 'Agenda for ' . $referenced_meeting_node->getTitle();
     $node->setTitle($title_of_agenda);
-    $form_state->setValue('title', $title_of_agenda);
+    $node->set('field_agenda_time_stamp', $this_meeting_time_stamp);
+
+    $query = \Drupal::entityQuery('node')
+      ->accessCheck(TRUE)
+      ->condition('type', 'agenda')
+      ->condition('title', $title_of_agenda);
+    $nids = $query->execute();
+    if ($nids > 0) {
+      $form_state->setError($form,
+        "An " . $title_of_agenda . " has not been created as one already exists. Most likely the Meeting page has not been edited to include its Agenda");
+    }
   }
   else {
-    $this_meeting_time_stamp = '0';
     $form_state->setErrorByName('field_agenda_meeting', 'Please choose a Meeting that already exists.');
-    $node->setTitle('Error');
   }
-  $node->set('field_agenda_time_stamp', $this_meeting_time_stamp);
 } // end of agenda_node_builder
-
-
-function _agenda_node_form_validate(array &$form, FormStateInterface $form_state)  {
-  $agenda_name = $form_state->getValue('title');
-
-  if (!_unique_agenda_name($agenda_name)) {
-    $form_state->setError($form,
-      "An " . $agenda_name . " has not been created as one already exists. Most likely the Meeting page has not been edited to include its Agenda");
-  }
-}
-
-function _unique_agenda_name($title_of_agenda) {
-  $query = \Drupal::entityQuery('node')
-    ->accessCheck(TRUE)
-    ->condition('type', 'agenda')
-    ->condition('title', $title_of_agenda);
-  $nids = $query->execute();
-  return count($nids) === 0;
-}
-
-function _agenda_node_form_submit(array &$form, FormStateInterface $form_state) {
-  drupal_set_message(t('The form has been submitted.'));
-}
 
 /**
  * _agenda_delete_validation is the Agenda's delete validator callback
@@ -117,17 +111,15 @@ function _agenda_node_form_submit(array &$form, FormStateInterface $form_state) 
  * @param \Drupal\Core\Form\FormStateInterface $form_state
  * It will prevent an Agenda from being deleted when a Meeting references it
  */
-function _agenda_delete_validation(array &$form, FormStateInterface $form_state) {
+function _agenda_delete_validation(&$form, FormStateInterface $form_state) {
   $agenda_node = $form_state->getFormObject()->getEntity();
   $agenda_name = $agenda_node->getTitle();
   $agenda_node_id = $agenda_node->id();
   $query = \Drupal::entityQuery('node')
-    ->accessCheck(TRUE)
     ->condition('type', 'meeting')
     ->condition('field_agenda', $agenda_node_id);
   $nids = $query->execute();
   $count_nids = count($nids);
-  // Actually it should not be possible to have more than one Meeting that uses the same Agenda
   if ($count_nids > 0) {
     $msg_stem = ($count_nids == 1) ? 'There is one Meeting that references "' : 'There are ' . $count_nids . ' Meetings that reference "';
     $form_state->setError($form, $msg_stem . $agenda_name . '". It cannot be deleted yet.');
