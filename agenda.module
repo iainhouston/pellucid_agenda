@@ -13,19 +13,19 @@ use Drupal\node\NodeInterface;
  */
 function agenda_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   switch ($form_id) {
+
     // Agenda creation form
     case "node_agenda_form":
       // Hide the agenda status from form creation
       $form['field_agenda_status']['#access'] = FALSE;
       _setup_agenda_entity_builder($form);
       break;
+
     // Agenda edit form
     case "node_agenda_edit_form":
-      // We won't allow the Meeting to be changed once it's established
-      $form['field_agenda_meeting'] = FALSE;
-//      _setup_agenda_entity_builder($form);
-      _setup_agenda_entity_edit_callback($form, $form_state);
+      _prepare_agenda_edit_form($form, $form_state);
       break;
+
     // Agenda delete form
     case "node_agenda_delete_form":
       _setup_agenda_entity_delete_callback($form);
@@ -42,8 +42,10 @@ function _setup_agenda_entity_builder(&$form) {
   $form['#entity_builders'][] = '_agenda_node_builder';
 }
 
-function _setup_agenda_entity_edit_callback(&$form, FormStateInterface $form_state) {
+function _prepare_agenda_edit_form(&$form, FormStateInterface $form_state) {
 
+  // We won't allow the Meeting to be changed once it's established
+  $form['field_agenda_meeting']['#access'] = FALSE;
   // We'll supply the Agenda title based on the Meeting it's for
   $form['title']['#access'] = FALSE;
   // The timestamp it entirely our affair and never shown to the user
@@ -81,13 +83,17 @@ function _setup_agenda_entity_delete_callback(&$form) {
 function _agenda_node_builder($entity_type, NodeInterface $node, &$form, FormStateInterface $form_state) {
   // Find the meeting date from the Meeting Node referenced by `field_agenda_meeting`
   if ($node->field_agenda_meeting->target_id) {
+
+    // Compute Agenda Title
     $referenced_meeting_node = \Drupal::entityTypeManager()
       ->getStorage('node')
       ->load($node->field_agenda_meeting->target_id);
     $date_of_meeting = $referenced_meeting_node->field_meeting_date->date;
-    $this_meeting_time_stamp = $date_of_meeting->format('U');
     $title_of_agenda = 'Agenda for ' . $referenced_meeting_node->getTitle();
     $node->setTitle($title_of_agenda);
+
+    // Record time stamp in Agenda node
+    $this_meeting_time_stamp = $date_of_meeting->format('U');
     $node->set('field_agenda_time_stamp', $this_meeting_time_stamp);
 
     $query = \Drupal::entityQuery('node')
@@ -95,12 +101,13 @@ function _agenda_node_builder($entity_type, NodeInterface $node, &$form, FormSta
       ->condition('type', 'agenda')
       ->condition('title', $title_of_agenda);
     $nids = $query->execute();
-    if ($nids > 0) {
+    if (count($nids) > 0) {
       $form_state->setError($form,
-        "An " . $title_of_agenda . " has not been created as one already exists. Most likely the Meeting page has not been edited to include its Agenda");
+        "An " . $title_of_agenda . " has not been created as one already exists. Most likely the Meeting page has not been edited to include its Agenda yet.");
     }
   }
   else {
+    // Internal error - shouldn't happen
     $form_state->setErrorByName('field_agenda_meeting', 'Please choose a Meeting that already exists.');
   }
 } // end of agenda_node_builder
@@ -122,7 +129,7 @@ function _agenda_delete_validation(&$form, FormStateInterface $form_state) {
   $count_nids = count($nids);
   if ($count_nids > 0) {
     $msg_stem = ($count_nids == 1) ? 'There is one Meeting that references "' : 'There are ' . $count_nids . ' Meetings that reference "';
-    $form_state->setError($form, $msg_stem . $agenda_name . '". It cannot be deleted yet.');
+    $form_state->setError($form, $msg_stem . $agenda_name . '". It cannot be deleted yet until the corresponding Meeting is either edited or deleted.');
   }
   $agenda_status_id = $agenda_node->field_agenda_status->target_id;
   $referenced_tag = \Drupal::entityTypeManager()
@@ -134,3 +141,4 @@ function _agenda_delete_validation(&$form, FormStateInterface $form_state) {
     $form_state->setError($form, 'Please change the Agenda to "Draft" status before attempting to delete.');
   }
 }
+
