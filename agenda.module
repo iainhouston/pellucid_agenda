@@ -59,7 +59,7 @@ function _prepare_agenda_edit_form(&$form, FormStateInterface $form_state) {
   $referenced_tag = \Drupal::entityTypeManager()
     ->getStorage('taxonomy_term')
     ->load($agenda_status_id);
-  $agenda_status = $referenced_tag->name->value;
+  $agenda_status = $referenced_tag ? $referenced_tag->getName() : '';
   if ($agenda_status != 'Draft') {
     // We'll prevent agenda text edits unless in Draft status
     $form['body']['#access'] = FALSE;
@@ -144,7 +144,7 @@ function _agenda_delete_validation(&$form, FormStateInterface $form_state) {
   $referenced_tag = \Drupal::entityTypeManager()
     ->getStorage('taxonomy_term')
     ->load($agenda_status_id);
-  $agenda_status = $referenced_tag->name->value;
+  $agenda_status = $referenced_tag ? $referenced_tag->getName() : '';
   if ($agenda_status != 'Draft') {
     $form_state->setError($form, 'Please change the Agenda to "Draft" status before attempting to delete.');
   }
